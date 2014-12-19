@@ -37,6 +37,12 @@ router.post('/echo', function(req, res) {
 	});
 });
 
+router.get('/date', function(req, res) {
+
+    res.writeHead(200, { 'Content-Type': 'application/json' });
+	res.end(JSON.stringify({ currentDate: new Date() }));
+})
+
 /**
  * Utility functions
  */
