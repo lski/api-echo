@@ -1,10 +1,11 @@
-function Router() {
+function Router(options) {
 
 	if (!(this instanceof Router)) {
 		return new Router();
 	}
 
-	var _routes = {};
+	var _routes = {},
+		_options = options || {};
 
 	this.addRoute = function (type, url, handler) {
 
@@ -15,6 +16,13 @@ function Router() {
 	};
 
 	this.listener = function (req, res) {
+
+		// If there are any default headers to add, loop through and add them
+		if (_options.headers) {
+			Object.keys(_options.headers).forEach(function (key) {
+				res.setHeader(key, _options.headers[key]);
+			});
+		}
 
 		var routes = _routes[req.method];
 
@@ -52,6 +60,14 @@ Router.prototype.put = function (url, handler) {
 
 Router.prototype.del = function (url, handler) {
 	this.addRoute('DELETE', url, handler);
+};
+
+Router.prototype.routeNotFound = function (req, res) {
+
+	res.writeHead(404, {
+		'Access-Control-Allow-Origin': '*'
+	});
+	res.end('Not found');
 };
 
 module.exports = Router;
