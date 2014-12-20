@@ -23,26 +23,44 @@ function Router(options) {
 				res.setHeader(key, _options.headers[key]);
 			});
 		}
+        
+        if(_options.cors) {
+        
+            res.setHeader("Access-Control-Allow-Origin", _options.cors);
+            
+            // handle this being a preflight request
+            if(req.method === 'OPTIONS') {
 
-		var routes = _routes[req.method];
+                res.writeHead(200, {
+                    "Access-Control-Allow-Methods": "POST, GET, PUT, DELETE, OPTIONS",
+                    "Access-Control-Allow-Credentials": true,
+                    "Access-Control-Max-Age": '86400', // 24 hours
+                    "Access-Control-Allow-Headers": "X-Requested-With, Access-Control-Allow-Origin, X-HTTP-Method-Override, Content-Type, Authorization, Accept"
+                });
+                res.end();
+                
+                return;
+            }
+        }
+        
+        var routes = _routes[req.method];
+        if (routes) {
 
-		if (routes) {
+            for (var i = 0; i < routes.length; i++) {
 
-			for (var i = 0; i < routes.length; i++) {
+                var r = routes[i],
+                    matches = r.url.exec(req.url);
 
-				var r = routes[i],
-					matches = r.url.exec(req.url);
+                if (matches) {
 
-				if (matches) {
+                    r.handler(req, res, matches);
+                    return;
+                }
+            }
+        }
 
-					r.handler(req, res, matches);
-					return;
-				}
-			}
-		}
-
-		res.writeHead(404);
-		res.end('Not found');
+        res.writeHead(404);
+        res.end('Not found');
 	}
 }
 

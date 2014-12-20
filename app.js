@@ -2,11 +2,7 @@ var http = require('http');
 var Router = require('./router');
 
 var port = process.env.port || 1337;
-var router = new Router({
-	headers: {
-		'Access-Control-Allow-Origin': '*'
-	}
-});
+var router = new Router({ cors : "*" });
 var server = http.createServer(router.listener).listen(port);
 
 router.get('/headers', function(req, res) {
